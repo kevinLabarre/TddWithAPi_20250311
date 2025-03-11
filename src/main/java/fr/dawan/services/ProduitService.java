@@ -25,7 +25,6 @@ public class ProduitService {
 
     public Produit getById(Long id) {
         Optional<Produit> produit = repository.findById(id);
-
         return produit.orElse(null);
     }
 
@@ -35,5 +34,10 @@ public class ProduitService {
 
     public void delete(Long id) {repository.deleteById(id);}
 
-    private Produit update(Produit p) {return repository.save(p);}
+    public Produit update(Produit p) {
+        if(getById(p.getId()) == null){
+            return null;
+        }
+        return repository.save(p);
+    }
 }

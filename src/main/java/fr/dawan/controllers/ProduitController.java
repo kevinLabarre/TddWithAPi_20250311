@@ -5,10 +5,7 @@ import fr.dawan.services.ProduitService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -26,6 +23,7 @@ public class ProduitController {
     //PUT: /produits -- fournit dans le body de la requête
     //DELETE /produits/{id}
 
+    // update
 
     // Pour récupérer le body d'un requete, le faire avec @RequestBody
     // public ResponseEntity<Produit> updateProduit(@RequestBody Produit p){}
@@ -43,4 +41,26 @@ public class ProduitController {
         return ResponseEntity.ok(produit);
 //        return ResponseEntity.status(HttpStatus.OK).body(produit);
     }
+
+    @PostMapping("/save")
+    public ResponseEntity<Object> save(@RequestBody Produit p){
+        Produit prod = service.insert(p);
+        return ResponseEntity.ok(p);
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<Object> update(@RequestBody Produit p){
+        Produit prod = service.update(p);
+        if(prod == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Produit introuvable");
+        }
+        return ResponseEntity.ok(p);
+    }
+
+    @DeleteMapping(value="{id}")
+    public ResponseEntity<Object> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.ok("suppression OK");
+    }
+
 }
