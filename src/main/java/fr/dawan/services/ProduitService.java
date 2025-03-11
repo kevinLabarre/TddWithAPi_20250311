@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -32,7 +33,14 @@ public class ProduitService {
         return repository.save(p);
     }
 
-    public void delete(Long id) {repository.deleteById(id);}
+    public void delete(Long id) {
+        Produit p = getById(id);
+        if (p == null){
+            throw new NoSuchElementException("produit introuvable");
+        }
+
+        repository.delete(p);
+    }
 
     public Produit update(Produit p) {
         if(getById(p.getId()) == null){

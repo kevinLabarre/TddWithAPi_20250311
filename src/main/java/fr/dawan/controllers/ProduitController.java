@@ -29,10 +29,10 @@ public class ProduitController {
     // public ResponseEntity<Produit> updateProduit(@RequestBody Produit p){}
 
 
-    @GetMapping(value = "/produits")
+    @GetMapping(value = "")
     public List<Produit> getAll() {return service.getAll();}
 
-    @GetMapping(value ="/"+"{id}")
+    @GetMapping(value ="/{id}")
     public ResponseEntity<Object> getById(@PathVariable int id){
         Produit produit = service.getById((long) id);
         if(produit == null){
@@ -57,7 +57,7 @@ public class ProduitController {
         return ResponseEntity.ok(p);
     }
 
-    @DeleteMapping(value="{id}")
+    @DeleteMapping(value="/delete/{id}")
     public ResponseEntity<Object> delete(@PathVariable Long id) {
         service.delete(id);
         return ResponseEntity.ok("suppression OK");
