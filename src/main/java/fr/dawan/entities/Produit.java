@@ -8,17 +8,20 @@ import jakarta.persistence.Id;
 import java.util.Objects;
 
 @Entity
-public class Produit {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+public class Produit extends BaseEntity{
     private String nom;
     private Double prix;
 
     // Constructors
+
+    public Produit(Long id, Integer version, String nom, Double prix) {
+        super(id, version);
+        this.nom = nom;
+        this.prix = prix;
+    }
+
     public Produit(Long id, String nom, Double prix) {
-        this.id = id;
+        super(id);
         this.nom = nom;
         this.prix = prix;
     }
@@ -33,14 +36,6 @@ public class Produit {
 
 
     // Getters and setters
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getNom() {
         return nom;
     }
@@ -62,11 +57,11 @@ public class Produit {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Produit produit = (Produit) o;
-        return Objects.equals(id, produit.id) && Objects.equals(nom, produit.nom) && Objects.equals(prix, produit.prix);
+        return Objects.equals(getId(), produit.getId()) && Objects.equals(nom, produit.nom) && Objects.equals(prix, produit.prix);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, nom, prix);
+        return Objects.hash(getId(), nom, prix);
     }
 }
