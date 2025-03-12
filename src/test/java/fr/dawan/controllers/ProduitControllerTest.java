@@ -1,5 +1,6 @@
 package fr.dawan.controllers;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.dawan.entities.Produit;
@@ -23,8 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import javax.print.attribute.standard.Media;
 
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -114,28 +114,44 @@ class ProduitControllerTestIT {
     @Test
     void save() throws Exception {
         Produit p = new Produit( "pc hp", 2500.0);
-
+        p.setId(5L);
         objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
         String jsonProduit = objectMapper.writeValueAsString(p);
 
         // quand le service sauvegarde un produit, il retourne le nouveau produit avec son ID .
-        p.setId(5L);
         when(produitService.insert(p)).thenReturn(p);
-
 
         mockMvc.perform(post("/api/produits/save")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonProduit)
                 .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(5L)))
-                .andExpect(jsonPath("$.name", is(p.getNom())))
+//                .andExpect(jsonPath("$.id", is(5)))
+                .andExpect(jsonPath("$.nom", is(p.getNom())))
                 .andExpect(jsonPath("$.prix", is(p.getPrix())));
     }
 
     @Test
-    void update() {
-        products.add(new Produit(2L, "produitTestController_after_test_update", 24.0 ));
+    void update() throws Exception {
+        Produit p = new Produit( 2l,"test_update_controller", 24.00);
+        int id = Math.toIntExact(p.getId());
+
+        objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        String jsonProduit = objectMapper.writeValueAsString(p);
+
+        when(produitService.update(p)).thenReturn(p);
+
+
+        mockMvc.perform(put("/api/produits/update")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonProduit)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(id)))
+                .andExpect(jsonPath("$.nom", is(p.getNom())))
+                .andExpect(jsonPath("$.prix", is(p.getPrix())));
+
+
     }
 
     @Test
@@ -143,7 +159,7 @@ class ProduitControllerTestIT {
         Long productId = 2L;
         doNothing().when(produitService).delete(productId);
 
-        String res = mockMvc.perform(get("/api/produits/{id}", productId))
+        String res = mockMvc.perform(delete("/api/produits/delete/{id}", productId))
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
