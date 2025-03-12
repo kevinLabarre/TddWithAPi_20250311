@@ -1,5 +1,7 @@
 package fr.dawan.controllers;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.dawan.entities.Produit;
 import fr.dawan.services.ProduitService;
 import static org.hamcrest.CoreMatchers.is;
@@ -15,15 +17,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+
+import javax.print.attribute.standard.Media;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
-
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +55,8 @@ class ProduitControllerTestIT {
     private MockMvc mockMvc;
     @MockBean
     private ProduitService produitService;
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private List<Produit> products = new ArrayList<>();
 
@@ -104,11 +112,30 @@ class ProduitControllerTestIT {
     }
 
     @Test
-    void save() {
+    void save() throws Exception {
+        Produit p = new Produit( "pc hp", 2500.0);
+
+        objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        String jsonProduit = objectMapper.writeValueAsString(p);
+
+        // quand le service sauvegarde un produit, il retourne le nouveau produit avec son ID .
+        p.setId(5L);
+        when(produitService.insert(p)).thenReturn(p);
+
+
+        mockMvc.perform(post("/api/produits/save")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonProduit)
+                .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(5L)))
+                .andExpect(jsonPath("$.name", is(p.getNom())))
+                .andExpect(jsonPath("$.prix", is(p.getPrix())));
     }
 
     @Test
     void update() {
+        products.add(new Produit(2L, "produitTestController_after_test_update", 24.0 ));
     }
 
     @Test

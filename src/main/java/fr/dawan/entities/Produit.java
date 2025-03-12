@@ -26,6 +26,12 @@ public class Produit {
     public Produit() {
     }
 
+    public Produit(String nom, Double prix) {
+        this.nom = nom;
+        this.prix = prix;
+    }
+
+
     // Getters and setters
     public Long getId() {
         return id;
